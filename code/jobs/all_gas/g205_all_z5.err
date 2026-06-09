@@ -1,0 +1,14 @@
+/home/gpruto/metal_ab/code/metals_singlegal_total.py:107: RuntimeWarning: invalid value encountered in log10
+  si_o = np.log10(silicon_density/oxygen_density) - mlib.Si_O_solar
+/home/gpruto/metal_ab/code/metals_singlegal_total.py:108: RuntimeWarning: invalid value encountered in log10
+  c_o = np.log10(carbon_density/oxygen_density) - mlib.C_O_solar
+/home/gpruto/metal_ab/code/metals_singlegal_total.py:109: RuntimeWarning: invalid value encountered in log10
+  c_fe = np.log10(carbon_density/iron_density) - mlib.C_Fe_solar
+/home/gpruto/metal_ab/code/metals_singlegal_total.py:110: RuntimeWarning: invalid value encountered in log10
+  o_fe = np.log10(oxygen_density/iron_density) - mlib.O_Fe_solar
+/home/gpruto/metal_ab/code/metals_singlegal_total.py:111: RuntimeWarning: invalid value encountered in log10
+  si_fe = np.log10(silicon_density/iron_density) - mlib.Si_Fe_solar
+/home/gpruto/metal_ab/code/metals_singlegal_total.py:112: RuntimeWarning: invalid value encountered in log10
+  si_c = np.log10(silicon_density/carbon_density) - mlib.Si_C_solar
+/var/spool/slurmd/job10270933/slurm_script: line 17: 3579081 Killed                  python /home/gpruto/metal_ab/code/metals_singlegal_total.py 92 False g205
+[2026-06-09T11:09:19.794] error: Detected 1 oom_kill event in StepId=10270933.batch. Some of the step tasks have been OOM Killed.

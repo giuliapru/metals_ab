@@ -1,0 +1,32 @@
+/home/gpruto/metal_ab/code/metal_tracks.py:110: SyntaxWarning: invalid escape sequence '\o'
+  axs[1].scatter([],[], c='k', s=sizes[j], label='M = %d M$_\odot$' %(mlib.Portinari_masses[j]))
+/home/gpruto/metal_ab/code/metal_tracks.py:60: RuntimeWarning: invalid value encountered in log10
+  si_o = np.log10(silicon_density/oxygen_density) - mlib.Si_O_solar
+/home/gpruto/metal_ab/code/metal_tracks.py:61: RuntimeWarning: invalid value encountered in log10
+  c_o = np.log10(carbon_density/oxygen_density) - mlib.C_O_solar
+/home/gpruto/metal_ab/code/metal_tracks.py:62: RuntimeWarning: invalid value encountered in log10
+  c_fe = np.log10(carbon_density/iron_density) - mlib.C_Fe_solar
+/home/gpruto/metal_ab/code/metal_tracks.py:63: RuntimeWarning: invalid value encountered in log10
+  o_fe = np.log10(oxygen_density/iron_density) - mlib.O_Fe_solar
+/home/gpruto/metal_ab/code/metal_tracks.py:64: RuntimeWarning: invalid value encountered in log10
+  si_fe = np.log10(silicon_density/iron_density) - mlib.Si_Fe_solar
+/home/gpruto/metal_ab/code/metal_tracks.py:65: RuntimeWarning: invalid value encountered in log10
+  si_c = np.log10(silicon_density/carbon_density) - mlib.Si_C_solar
+/home/gpruto/metal_ab/code/metals_lib.py:29: RuntimeWarning: divide by zero encountered in log10
+  ax.pcolormesh(X, Y, np.log10(h.T), shading='auto', cmap=color)
+/home/gpruto/metal_ab/code/metal_tracks.py:104: UserWarning: *c* argument looks like a single numeric RGB or RGBA sequence, which should be avoided as value-mapping will have precedence in case its length matches with *x* & *y*.  Please use the *color* keyword-argument or provide a 2D array with a single row if you intend to specify the same RGB or RGBA value for all points.
+  axs[0].scatter(np.log10(carbon_Portinari[i,:]/iron_Portinari[i,:]) - mlib.C_Fe_solar, np.log10(oxygen_Portinari[i,:]/iron_Portinari[i,:]) - mlib.O_Fe_solar, c=colours[i],s=sizes, label='Z = %.4f' %(mlib.Portinari_metallicities[i]))
+/home/gpruto/metal_ab/code/metal_tracks.py:105: UserWarning: *c* argument looks like a single numeric RGB or RGBA sequence, which should be avoided as value-mapping will have precedence in case its length matches with *x* & *y*.  Please use the *color* keyword-argument or provide a 2D array with a single row if you intend to specify the same RGB or RGBA value for all points.
+  axs[1].scatter(np.log10(carbon_Portinari[i,:]/iron_Portinari[i,:]) - mlib.C_Fe_solar, np.log10(silicon_Portinari[i,:]/carbon_Portinari[i,:]) - mlib.Si_C_solar, c=colours[i],s=sizes)
+/home/gpruto/metal_ab/code/metal_tracks.py:106: UserWarning: *c* argument looks like a single numeric RGB or RGBA sequence, which should be avoided as value-mapping will have precedence in case its length matches with *x* & *y*.  Please use the *color* keyword-argument or provide a 2D array with a single row if you intend to specify the same RGB or RGBA value for all points.
+  axs[2].scatter(np.log10(oxygen_Portinari[i,:]/iron_Portinari[i,:]) - mlib.O_Fe_solar, np.log10(silicon_Portinari[i,:]/iron_Portinari[i,:]) - mlib.Si_Fe_solar, c=colours[i],s=sizes)
+/home/gpruto/metal_ab/code/metal_tracks.py:107: UserWarning: *c* argument looks like a single numeric RGB or RGBA sequence, which should be avoided as value-mapping will have precedence in case its length matches with *x* & *y*.  Please use the *color* keyword-argument or provide a 2D array with a single row if you intend to specify the same RGB or RGBA value for all points.
+  axs[3].scatter(np.log10(carbon_Portinari[i,:]/oxygen_Portinari[i,:]) - mlib.C_O_solar, np.log10(silicon_Portinari[i,:]/oxygen_Portinari[i,:]) - mlib.Si_O_solar, c=colours[i],s=sizes)
+/home/gpruto/metal_ab/code/metal_tracks.py:104: RuntimeWarning: invalid value encountered in divide
+  axs[0].scatter(np.log10(carbon_Portinari[i,:]/iron_Portinari[i,:]) - mlib.C_Fe_solar, np.log10(oxygen_Portinari[i,:]/iron_Portinari[i,:]) - mlib.O_Fe_solar, c=colours[i],s=sizes, label='Z = %.4f' %(mlib.Portinari_metallicities[i]))
+/home/gpruto/metal_ab/code/metal_tracks.py:105: RuntimeWarning: invalid value encountered in divide
+  axs[1].scatter(np.log10(carbon_Portinari[i,:]/iron_Portinari[i,:]) - mlib.C_Fe_solar, np.log10(silicon_Portinari[i,:]/carbon_Portinari[i,:]) - mlib.Si_C_solar, c=colours[i],s=sizes)
+/home/gpruto/metal_ab/code/metal_tracks.py:106: RuntimeWarning: invalid value encountered in divide
+  axs[2].scatter(np.log10(oxygen_Portinari[i,:]/iron_Portinari[i,:]) - mlib.O_Fe_solar, np.log10(silicon_Portinari[i,:]/iron_Portinari[i,:]) - mlib.Si_Fe_solar, c=colours[i],s=sizes)
+/home/gpruto/metal_ab/code/metal_tracks.py:107: RuntimeWarning: invalid value encountered in divide
+  axs[3].scatter(np.log10(carbon_Portinari[i,:]/oxygen_Portinari[i,:]) - mlib.C_O_solar, np.log10(silicon_Portinari[i,:]/oxygen_Portinari[i,:]) - mlib.Si_O_solar, c=colours[i],s=sizes)

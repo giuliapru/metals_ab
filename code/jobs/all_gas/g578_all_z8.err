@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/home/gpruto/metal_ab/code/metals_singlegal_total.py", line 11, in <module>
+    import metals_lib as mlib
+  File "/home/gpruto/metal_ab/code/metals_lib.py", line 376, in <module>
+    Portinari_yields[0,0,:] = [4.57, 1.22E-04, 2.63, 8.97E-02, 2.27E-05, 9.31E-04, 7.16E-06, 0.140, 4.78E-06, 2.43E-05,
+    ~~~~~~~~~~~~~~~~^^^^^^^
+ValueError: could not broadcast input array from shape (17,) into shape (16,)

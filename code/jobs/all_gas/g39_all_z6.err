@@ -1,0 +1,2 @@
+/var/spool/slurmd/job10270935/slurm_script: line 17: 3579391 Killed                  python /home/gpruto/metal_ab/code/metals_singlegal_total.py 68 False g39
+[2026-06-09T11:54:33.741] error: Detected 1 oom_kill event in StepId=10270935.batch. Some of the step tasks have been OOM Killed.
