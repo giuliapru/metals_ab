@@ -4,10 +4,11 @@ import time
 import numpy as np
 
 
-snaps = np.array([51, 68, 92]) #39 51, 68, 92
-redshifts = np.array([7,6,5]) #8,7,6,5
-cold_gas_only = False
-gal = ['g578', 'g205', 'g39']#['g5229300', 'g2274036', 'g519761', 'g500531', 'g137030', 'g37591','g33206', 'g10304', 'g5760', 'g1163', 'g578', 'g205', 'g39']
+snaps = np.array([39, 51, 68, 92]) #39 51, 68, 92
+redshifts = np.array([8, 7, 6, 5]) #8,7,6,5
+cold_gas_only = True
+metal_cut = True
+gal = ['g578', 'g205', 'g39'] #['g5229300', 'g2274036', 'g519761', 'g500531', 'g137030', 'g37591','g33206', 'g10304', 'g5760', 'g1163', 'g578', 'g205', 'g39']
 
 
 def create_slurm_script(job_name, output_file, error_file, times, nodes, ntasks_per_node, job_script_name, job_commands):
@@ -49,20 +50,34 @@ for g in gal:
     for i in range(len(snaps)):
         # Example parameters
         job_name = "%s_all_%d" %(g, redshifts[i])
-        output_file = "/home/gpruto/metal_ab/code/jobs/all_gas/%s_all_z%d.out" %(g, redshifts[i]) # %j will be replaced with the job ID
-        error_file = "/home/gpruto/metal_ab/code/jobs/all_gas/%s_all_z%d.err" %(g, redshifts[i])
+        output_file = "/home/gpruto/metal_ab/code/jobs/all_gas/all_ptcs/%s_all_z%d.out" %(g, redshifts[i]) # %j will be replaced with the job ID
+        error_file = "/home/gpruto/metal_ab/code/jobs/all_gas/all_ptcs/%s_all_z%d.err" %(g, redshifts[i])
         times = "05:00:00"  
         nodes = 1
         ntasks_per_node = 1
-        job_script_name = "/home/gpruto/metal_ab/code/jobs/all_gas/%s_all_z%d.slurm" %(g, redshifts[i])
-        job_commands = "python /home/gpruto/metal_ab/code/metals_singlegal_total.py %d %s %s" %(snaps[i], cold_gas_only, g) 
+        job_script_name = "/home/gpruto/metal_ab/code/jobs/all_gas/all_ptcs/%s_all_z%d.slurm" %(g, redshifts[i])
+        job_commands = "python /home/gpruto/metal_ab/code/metals_singlegal_total.py %d %s %s %s" %(snaps[i], cold_gas_only, g, metal_cut) 
 
-        if cold_gas_only==True:
+        if cold_gas_only==True and metal_cut==False:
             job_name += "_cold_gas_only"
-            output_file = "/home/gpruto/metal_ab/code/jobs/all_gas/%s_all_z%d_coldgas.out" %(g, redshifts[i]) # %j will be replaced with the job ID
-            error_file = "/home/gpruto/metal_ab/code/jobs/all_gas/%s_all_z%d_coldgas.err" %(g, redshifts[i])
-            job_script_name = "/home/gpruto/metal_ab/code/jobs/all_gas/%s_all_z%d_coldgas.slurm" %(g, redshifts[i])
-            job_commands = "python /home/gpruto/metal_ab/code/metals_singlegal_total.py %d %s %s" %(snaps[i], cold_gas_only, g)
+            output_file = "/home/gpruto/metal_ab/code/jobs/all_gas/cold_gas_only/%s_all_z%d_coldgas.out" %(g, redshifts[i]) # %j will be replaced with the job ID
+            error_file = "/home/gpruto/metal_ab/code/jobs/all_gas/cold_gas_only/%s_all_z%d_coldgas.err" %(g, redshifts[i])
+            job_script_name = "/home/gpruto/metal_ab/code/jobs/all_gas/cold_gas_only/%s_all_z%d_coldgas.slurm" %(g, redshifts[i])
+            job_commands = "python /home/gpruto/metal_ab/code/metals_singlegal_total.py %d %s %s %s" %(snaps[i], cold_gas_only, g, metal_cut)
+
+        if metal_cut==True and cold_gas_only==False:
+            job_name += "_metal_cut"
+            output_file = "/home/gpruto/metal_ab/code/jobs/all_gas/low_met_only/%s_all_z%d_metalcut.out" %(g, redshifts[i]) # %j will be replaced with the job ID
+            error_file = "/home/gpruto/metal_ab/code/jobs/all_gas/low_met_only/%s_all_z%d_metalcut.err" %(g, redshifts[i])
+            job_script_name = "/home/gpruto/metal_ab/code/jobs/all_gas/low_met_only/%s_all_z%d_metalcut.slurm" %(g, redshifts[i])
+            job_commands = "python /home/gpruto/metal_ab/code/metals_singlegal_total.py %d %s %s %s" %(snaps[i], cold_gas_only, g, metal_cut)
+
+        if metal_cut==True and cold_gas_only==True:
+            job_name += "_cold_gas_only_metal_cut"
+            output_file = "/home/gpruto/metal_ab/code/jobs/all_gas/cold_low_met/%s_all_z%d_cold_metalcut.out" %(g, redshifts[i]) # %j will be replaced with the job ID
+            error_file = "/home/gpruto/metal_ab/code/jobs/all_gas/cold_low_met/%s_all_z%d_cold_metalcut.err" %(g, redshifts[i])
+            job_script_name = "/home/gpruto/metal_ab/code/jobs/all_gas/cold_low_met/%s_all_z%d_cold_metalcut.slurm" %(g, redshifts[i])
+            job_commands = "python /home/gpruto/metal_ab/code/metals_singlegal_total.py %d %s %s %s" %(snaps[i], cold_gas_only, g, metal_cut)
 
         # Create the SLURM script
         create_slurm_script(job_name, output_file, error_file, times, nodes, ntasks_per_node, job_script_name, job_commands)

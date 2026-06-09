@@ -1,0 +1,8 @@
+/home/gpruto/metal_ab/code/metals_singlegal_total.py:107: RuntimeWarning: invalid value encountered in log10
+  si_o = np.log10(silicon_density/oxygen_density) - mlib.Si_O_solar
+/home/gpruto/metal_ab/code/metals_singlegal_total.py:108: RuntimeWarning: invalid value encountered in log10
+  c_o = np.log10(carbon_density/oxygen_density) - mlib.C_O_solar
+/home/gpruto/metal_ab/code/metals_singlegal_total.py:110: RuntimeWarning: invalid value encountered in log10
+  o_fe = np.log10(oxygen_density/iron_density) - mlib.O_Fe_solar
+/home/gpruto/metal_ab/code/metals_lib.py:29: RuntimeWarning: divide by zero encountered in log10
+  ax.pcolormesh(X, Y, np.log10(h.T), shading='auto', cmap=color)

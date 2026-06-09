@@ -46,7 +46,7 @@ si_c_allg = []
 c_fe_allg = []
 
 
-gal = 'g39'
+gal = 'g519761'
 snap=51
 run='fiducial'
 cond_hr = 0.5
@@ -87,10 +87,17 @@ for aa in [axs]:
     aa[3].set_xlabel(r'[C/O]')
     aa[3].set_ylabel(r'[Si/O]')
 
+#####SN II yields from Portinari et al. 1998
 carbon_Portinari = np.zeros((len(mlib.Portinari_metallicities), len(mlib.Portinari_masses)))
 oxygen_Portinari = np.zeros((len(mlib.Portinari_metallicities), len(mlib.Portinari_masses)))
 silicon_Portinari = np.zeros((len(mlib.Portinari_metallicities), len(mlib.Portinari_masses)))
 iron_Portinari = np.zeros((len(mlib.Portinari_metallicities), len(mlib.Portinari_masses)))
+
+#check we're considering the right elements
+#print(mlib.Portinari_elements[3:5])
+#print(mlib.Portinari_elements[7:10])
+#print(mlib.Portinari_elements[-4])
+#print(mlib.Portinari_elements[-1])
 
 for met in range(len(mlib.Portinari_metallicities)):
     for mass in range(len(mlib.Portinari_masses)):
@@ -111,6 +118,57 @@ for j in range(len(mlib.Portinari_masses)):
 
 axs[0].legend()
 axs[1].legend(loc='lower left')
+figs.savefig('/home/gpruto/metal_ab/images/SNII_tracks_yields.png', dpi=300, bbox_inches='tight')
 
 
-figs.savefig('/home/gpruto/metal_ab/images/Portinari_tracks_yields.png', dpi=300, bbox_inches='tight')
+#### SNIa yields from Thielemann et al. 2003
+fig_snia, ax_snia = plt.subplots(2, 2, figsize=(10, 10))
+ax_snia = ax_snia.flatten()
+carbon_snia = np.sum(mlib.Thie_2003_yields[0:2])
+oxygen_snia = np.sum(mlib.Thie_2003_yields[4:7])
+silicon_snia = np.sum(mlib.Thie_2003_yields[16:19])
+iron_snia = np.sum(mlib.Thie_2003_yields[50:54])
+
+##check we're considering the right elements
+#print(mlib.Thie_2003_elements[0:2])
+#print(mlib.Thie_2003_yields[0:2])
+#print(mlib.Thie_2003_elements[4:7])
+#print(mlib.Thie_2003_yields[4:7])
+#print(mlib.Thie_2003_elements[16:19])
+#print(mlib.Thie_2003_yields[16:19])
+#print(mlib.Thie_2003_elements[50:54])
+#print(mlib.Thie_2003_yields[50:54])
+mlib.hist_2d(np.array(c_fe_allg), np.array(o_fe_allg), ax_snia[0], x_bins = 300, y_bins=300)
+mlib.hist_2d(np.array(c_fe_allg), np.array(si_c_allg), ax_snia[1], x_bins = 300, y_bins=300)
+mlib.hist_2d(np.array(o_fe_allg), np.array(si_fe_allg), ax_snia[2], x_bins = 300, y_bins=300)
+mlib.hist_2d(np.array(c_o_allg), np.array(si_o_allg), ax_snia[3], x_bins = 300, y_bins=300)
+
+
+for aa in [axs, ax_snia]:
+    aa[0].set_xlabel(r'[C/Fe]')
+    aa[0].set_ylabel(r'[O/Fe]')
+    aa[1].set_xlabel(r'[C/Fe]')
+    aa[1].set_ylabel(r'[Si/C]')
+    aa[2].set_xlabel(r'[O/Fe]')
+    aa[2].set_ylabel(r'[Si/Fe]')
+    aa[3].set_xlabel(r'[C/O]')
+    aa[3].set_ylabel(r'[Si/O]')
+
+    aa[0].scatter(np.log10(carbon_snia/iron_snia) - mlib.C_Fe_solar, np.log10(oxygen_snia/iron_snia) - mlib.O_Fe_solar, c='tab:red', s=50, marker='x')
+    aa[1].scatter(np.log10(carbon_snia/iron_snia) - mlib.C_Fe_solar, np.log10(silicon_snia/carbon_snia) - mlib.Si_C_solar, c='tab:red', s=50, marker='x')
+    aa[2].scatter(np.log10(oxygen_snia/iron_snia) - mlib.O_Fe_solar, np.log10(silicon_snia/iron_snia) - mlib.Si_Fe_solar, c='tab:red', s=50, marker='x', label='SNIa')
+    aa[3].scatter(np.log10(carbon_snia/oxygen_snia) - mlib.C_O_solar, np.log10(silicon_snia/oxygen_snia) - mlib.Si_O_solar, c='tab:red', s=50, marker='x')
+
+    aa[0].set_xlim(-2.5, 3)
+    aa[0].set_ylim(-2.3, 3.5)
+    aa[1].set_xlim(-2.5, 2.5)
+    aa[1].set_ylim(-2.7, 1.8)
+    aa[2].set_xlim(-2.3, 3.8)
+    aa[2].set_ylim(-1, 2)
+    aa[3].set_xlim(-1.4, 1.2)
+    aa[3].set_ylim(-3.5, 1.5)
+
+    aa[2].legend()
+
+fig_snia.savefig('/home/gpruto/metal_ab/images/SNIa_tracks_yields.png', dpi=300, bbox_inches='tight')
+figs.savefig('/home/gpruto/metal_ab/images/SNII_and_SNIa_tracks_yields.png', dpi=300, bbox_inches='tight')

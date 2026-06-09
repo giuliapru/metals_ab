@@ -1,0 +1,2 @@
+/home/gpruto/metal_ab/code/metals_lib.py:29: RuntimeWarning: divide by zero encountered in log10
+  ax.pcolormesh(X, Y, np.log10(h.T), shading='auto', cmap=color)

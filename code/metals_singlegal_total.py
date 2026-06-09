@@ -28,14 +28,21 @@ elif snap == 51:
 elif snap == 39:
     red = 8
 
+Z_solar = 0.0196
 
 run = 'fiducial' 
 cond_hr = 0.5
 hist = True
 cold_gas_only = str(sys.argv[2]) == 'True' #if True, only plot gas with T < 10^4 K, otherwise plot all gas
 gal = str(sys.argv[3])
-#metal_cut = 
+metal_cut = str(sys.argv[4]) == 'True' #if True, only plot gas with metallicity < 0.1 Z_solar, otherwise plot all gas
+
+if metal_cut:
+    metal_up = 0.1 * Z_solar #upper metallicity
+
 factor_mod_si = 1
+
+
 
 
 figs, axs = plt.subplots(2, 2, figsize=(10, 10))
@@ -85,12 +92,12 @@ c_fe_allg = []
 targethalo = TargetHalo(gal, run)
 targethalo.read_haloes(snap, 0)
 halo_mass = targethalo.data[snap]['mass200']*1e10/lib.h
-coords, volume, redshift, gasmass, _, _, h_density, hi_density, carbon_density, oxygen_density, silicon_density, iron_density, temperature = targethalo.gas_properties(snap, cond_hr, 1., all=True, metals=True, temperature=True)
+coords, volume, redshift, gasmass, _, _, h_density, hi_density, carbon_density, oxygen_density, silicon_density, iron_density, temperature, metallicity = targethalo.gas_properties(snap, cond_hr, 1., all=True, metals=True, temperature=True, metallicity=True)
 
 if cold_gas_only:
     condition_cold = temperature < 1e4
-    print('Number of ptcs within the virial radius: %.2f' % len(temperature), ' checking condition cold is of the same dimension: %.2f' %len(condition_cold))
-    print('In galaxy %s, the number of cold gas particles is %.2f' % (g, len(condition_cold[condition_cold==True])))
+    print('Number of ptcs: %.2f' % len(temperature), ' checking condition cold is of the same dimension: %.2f' %len(condition_cold))
+    print('In galaxy %s, the number of cold gas particles is %.2f' % (gal, len(condition_cold[condition_cold==True])))
     h_density = h_density[condition_cold]
     hi_density = hi_density[condition_cold]
     carbon_density = carbon_density[condition_cold]
@@ -100,7 +107,24 @@ if cold_gas_only:
     temperature = temperature[condition_cold]
     volume = volume[condition_cold]
     gasmass = gasmass[condition_cold]
-    print('In galaxy %s, the number of cold gas particles after applying the condition is %d' % (g, len(temperature)))
+    metallicity = metallicity[condition_cold]
+    print('In galaxy %s, the number of cold gas particles after applying the condition is %d' % (gal, len(temperature)))
+
+if metal_cut:
+    print('Number of ptcs: %.2f' % len(temperature))
+    condition_metal = metallicity < metal_up
+    print('In galaxy %s, the number of gas particles with metallicity < 0.1 Z_solar is %.2f' % (gal, len(condition_metal[condition_metal==True])))
+    h_density = h_density[condition_metal]
+    hi_density = hi_density[condition_metal]
+    carbon_density = carbon_density[condition_metal]
+    oxygen_density = oxygen_density[condition_metal]
+    silicon_density = silicon_density[condition_metal]
+    iron_density = iron_density[condition_metal]
+    temperature = temperature[condition_metal]
+    volume = volume[condition_metal]
+    gasmass = gasmass[condition_metal]
+    metallicity = metallicity[condition_metal]
+    print('In galaxy %s, the number of gas particles after applying the metallicity cut is %d' % (gal, len(temperature)))
 
 neutral_oxygen_density = oxygen_density*hi_density/h_density
 
@@ -148,19 +172,34 @@ axs[1].legend()
 figs.subplots_adjust(bottom=0.2)
 figs.subplots_adjust(wspace=0.3, hspace=0.3)
 
-if cold_gas_only:
+if cold_gas_only and not metal_cut:
     if factor_mod_si != 1:
-        figs.savefig('/home/gpruto/metal_ab/images/all_gas/%s_all_z%.1f_hist_coldgasonly_modsi.png' % (gal, red), bbox_inches='tight')
+        figs.savefig('/home/gpruto/metal_ab/images/all_gas/cold_gas_only/%s_all_z%.1f_hist_coldgasonly_modsi.png' % (gal, red), bbox_inches='tight')
         plt.close()
     else:
-        figs.savefig('/home/gpruto/metal_ab/images/all_gas/%s_all_z%.1f_hist_coldgasonly.png' % (gal, red), bbox_inches='tight')
+        figs.savefig('/home/gpruto/metal_ab/images/all_gas/cold_gas_only/%s_all_z%.1f_hist_coldgasonly.png' % (gal, red), bbox_inches='tight')
         plt.close()
-            
-         
+
+elif metal_cut and not cold_gas_only:
+    if factor_mod_si != 1:
+        figs.savefig('/home/gpruto/metal_ab/images/all_gas/low_met_only/%s_all_z%.1f_hist_metalcut_modsi.png' % (gal, red), bbox_inches='tight')
+        plt.close()
+    else:
+        figs.savefig('/home/gpruto/metal_ab/images/all_gas/low_met_only/%s_all_z%.1f_hist_metalcut.png' % (gal, red), bbox_inches='tight')
+        plt.close()
+
+elif metal_cut and cold_gas_only:
+    if factor_mod_si != 1:
+        figs.savefig('/home/gpruto/metal_ab/images/all_gas/cold_low_met/%s_all_z%.1f_hist_cold_metalcut_modsi.png' % (gal, red), bbox_inches='tight')
+        plt.close()
+    else:
+        figs.savefig('/home/gpruto/metal_ab/images/all_gas/cold_low_met/%s_all_z%.1f_hist_cold_metalcut.png' % (gal, red), bbox_inches='tight')
+        plt.close()
+
 else:
     if factor_mod_si != 1:
-        figs.savefig('/home/gpruto/metal_ab/images/all_gas/%s_all_z%.1f_hist_modsi.png' % (gal, red), bbox_inches='tight')
+        figs.savefig('/home/gpruto/metal_ab/images/all_gas/all_ptcs/%s_all_z%.1f_hist_modsi.png' % (gal, red), bbox_inches='tight')
         plt.close()
     else:
-        figs.savefig('/home/gpruto/metal_ab/images/all_gas/%s_all_z%.1f_hist.png' % (gal, red), bbox_inches='tight')
+        figs.savefig('/home/gpruto/metal_ab/images/all_gas/all_ptcs/%s_all_z%.1f_hist.png' % (gal, red), bbox_inches='tight')
         plt.close()

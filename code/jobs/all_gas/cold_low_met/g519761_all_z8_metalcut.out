@@ -1,0 +1,10 @@
+Loading all gas particles in the snapshot.
+Calculating temperature for g519761 at z=8.0
+temperature done
+Number of ptcs: 261918.00  checking condition cold is of the same dimension: 261918.00
+In galaxy g519761, the number of cold gas particles is 219109.00
+In galaxy g519761, the number of cold gas particles after applying the condition is 219109
+Number of ptcs: 219109.00
+In galaxy g519761, the number of gas particles with metallicity < 0.1 Z_solar is 219109.00
+In galaxy g519761, the number of gas particles after applying the metallicity cut is 219109
+The length of the silicon/oxygen abundance array is 219109.00
