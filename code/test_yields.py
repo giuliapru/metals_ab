@@ -186,9 +186,9 @@ with h5py.File(infile,'r') as f:
     print('Species_names =', species_names)
     yield_names = f['Yield_names'][:]
     print('Yield_names =', yield_names)
-    print('Just to check... ', f['Yields']['Z_0.05']['Yield'])
+    print('Just to check... ', f['Yields']['Z_0.02']['Yield'])
 
-    ejected_mass = f['Yields']['Z_0.05']['Ejected_mass'][:]
+    ejected_mass = f['Yields']['Z_0.02']['Ejected_mass'][:]
     print('Dimension of ejected mass ', ejected_mass.shape)
 
     # common checks:
@@ -201,14 +201,13 @@ with h5py.File(infile,'r') as f:
         print(list(y.keys()))
         print(f['Yields']['Z_0.02'].keys())
         
-        #print('sum over species ', np.sum(f['Yields']['Z_0.05']['Yield'][:,0]))
-        #print(f['Yields']['Z_0.02']['Total_Metals'][:]) #*f['Yields']['Z_0.02']['Ejected_mass'][:])
-        print(f['Yields']['Z_0.02']['Ejected_mass'][:])
-        print(f['Yields']['Z_0.02']['Yield'][7, :]+ 6.7e-4*f['Yields']['Z_0.02']['Ejected_mass'][:])#*f['Yields']['Z_0.02']['Ejected_mass'][:])
+        print(f['Yields']['Z_0.02']['Total_Metals'][:]/f['Yields']['Z_0.02']['Ejected_mass'][:])
+        #print(f['Yields']['Z_0.02']['Ejected_mass'][:]) #*f['Yields']['Z_0.02']['Ejected_mass'][:])
+        #print('total mass of metals ejected ', (f['Yields']['Z_0.02']['Total_Metals'][:]))
+        #print('check total metals ', np.sum(f['Yields']['Z_0.02']['Yield'][2:, :], axis=0))
+        print((f['Yields']['Z_0.02']['Yield'][0, :]+ 0.7455721*(f['Masses'][:]-f['Yields']['Z_0.02']['Ejected_mass'][:])))
+        #print((28.72 - f['Yields']['Z_0.02']['Yield'][0, -1])/(f['Masses'][-1]-f['Yields']['Z_0.02']['Ejected_mass'][-1]))
         #print('total mass of silicon ejected ', (f['Yields']['Z_0.02']['Yield'][7,:]*f['Yields']['Z_0.02']['Ejected_mass'][:]))
-        #obj = y[name]
-        #print(obj.keys())
-        # typical shapes: (n_z, n_mass, n_elem) or (n_mass, n_elem)
 
 #<KeysViewHDF5 ['Masses', 'Metallicities', 'Number_of_masses', 'Number_of_metallicities', 'Number_of_species', 'Reference', 'Species_names', 'Yield_names', 'Yields']>
 

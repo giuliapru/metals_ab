@@ -1,0 +1,7 @@
+To activate environments, you need to manually
+. /usr/local/anaconda/3.13/etc/profile.d/conda.sh
+Traceback (most recent call last):
+  File "/home/gpruto/metal_ab/code/dust_effects/dust_to_gas.py", line 96, in <module>
+    dust_to_gas = data[:, 13]
+                  ~~~~^^^^^^^
+IndexError: index 13 is out of bounds for axis 1 with size 13

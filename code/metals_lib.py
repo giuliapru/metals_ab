@@ -1,7 +1,11 @@
+from importlib.resources import path
+from pathlib import Path
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 from matplotlib.patches import Polygon
+import cmcrameri.cm as cmc
 
 C_sun = 8.47 - 12
 O_sun = 8.73 - 12
@@ -16,7 +20,7 @@ C_O_solar = C_sun - O_sun
 C_Fe_solar = C_sun - Fe_sun
 O_Fe_solar = O_sun - Fe_sun
 
-def hist_2d(x, y, ax, x_bins=50, y_bins=50, color='Greys'):
+def hist_2d(x, y, ax, x_bins=50, y_bins=50, color=cmc.batlowK, alpha=1.0, output=False):
     # Remove NaNs if needed
     mask = np.isfinite(x) & np.isfinite(y)
     x, y = x[mask], y[mask]
@@ -26,8 +30,11 @@ def hist_2d(x, y, ax, x_bins=50, y_bins=50, color='Greys'):
 
     # Plot with pcolormesh
     X, Y = np.meshgrid(xedges[:-1], yedges[:-1])
-    ax.pcolormesh(X, Y, np.log10(h.T), shading='auto', cmap=color)
+    ax.pcolormesh(X, Y, np.log10(h.T), shading='auto', cmap=color, alpha=alpha)
 
+    if output==True:
+        return h, xedges, yedges
+    
 
 
 def add_contours(ax, x, y, color, levels=(0.001, 0.5), all=False):
@@ -54,33 +61,41 @@ def add_contours(ax, x, y, color, levels=(0.001, 0.5), all=False):
     ax.contour(xx, yy, f, levels=levels, colors=color, linewidths=1.)
 
 ##### PLOTTING OBSERVATIONAL DATA #####
-def plot_Sodini(x_data, y_data, x_err, y_err, x_limit, y_limit, ax, color, special=False, label = None):
+def plot_Sodini(x_data, y_data, x_err, y_err, x_limit, y_limit, ax, color, special=False, label = None, special_only=False, marker ='o'):
     
     all_constrained = np.array([True if (x_limit[i]=='nan' and y_limit[i]=='nan') else False for i in range(len(x_limit))])
-    ax.errorbar(x_data[all_constrained], y_data[all_constrained], xerr=x_err[all_constrained], yerr=y_err[all_constrained], fmt='o', color=color, ecolor=color, elinewidth=1, capsize=1, label=label)
+    ax.errorbar(x_data[all_constrained], y_data[all_constrained], xerr=x_err[all_constrained], yerr=y_err[all_constrained], fmt=marker, color=color, ecolor=color, elinewidth=1, capsize=1, label=label)
 
     y_limited_low = np.array([True if (x_limit[i]=='nan' and y_limit[i]=='lower') else False for i in range(len(x_limit))])
-    ax.errorbar(x_data[y_limited_low], y_data[y_limited_low], lolims = True, yerr=(np.ones(len(y_limited_low))*0.3)[y_limited_low], xerr=x_err[y_limited_low], fmt='o', color=color, ecolor=color, elinewidth=1, capsize=1)
+    ax.errorbar(x_data[y_limited_low], y_data[y_limited_low], lolims = True, yerr=(np.ones(len(y_limited_low))*0.3)[y_limited_low], xerr=x_err[y_limited_low], fmt=marker, color=color, ecolor=color, elinewidth=1, capsize=1)
     y_limited_up = np.array([True if (x_limit[i]=='nan' and y_limit[i]=='upper') else False for i in range(len(x_limit))])
-    ax.errorbar(x_data[y_limited_up], y_data[y_limited_up], uplims = True, yerr=(np.ones(len(y_limited_up))*0.3)[y_limited_up], xerr=x_err[y_limited_up], fmt='o', color=color, ecolor=color, elinewidth=1, capsize=1)
+    ax.errorbar(x_data[y_limited_up], y_data[y_limited_up], uplims = True, yerr=(np.ones(len(y_limited_up))*0.3)[y_limited_up], xerr=x_err[y_limited_up], fmt=marker, color=color, ecolor=color, elinewidth=1, capsize=1)
 
     x_limited_low = np.array([True if (x_limit[i]=='lower' and y_limit[i]=='nan') else False for i in range(len(x_limit))])
-    ax.errorbar(x_data[x_limited_low], y_data[x_limited_low], xlolims = True, yerr=y_err[x_limited_low], xerr = (np.ones(len(x_limited_low))*0.3)[x_limited_low], fmt='o', color=color, ecolor=color, elinewidth=1, capsize=1)
+    ax.errorbar(x_data[x_limited_low], y_data[x_limited_low], xlolims = True, yerr=y_err[x_limited_low], xerr = (np.ones(len(x_limited_low))*0.3)[x_limited_low], fmt=marker, color=color, ecolor=color, elinewidth=1, capsize=1)
     x_limited_up = np.array([True if (x_limit[i]=='upper' and y_limit[i]=='nan') else False for i in range(len(x_limit))])
-    ax.errorbar(x_data[x_limited_up], y_data[x_limited_up], xuplims = True, yerr=y_err[x_limited_up], xerr = (np.ones(len(x_limited_up))*0.3)[x_limited_up], fmt='o', color=color, ecolor=color, elinewidth=1, capsize=1)
+    ax.errorbar(x_data[x_limited_up], y_data[x_limited_up], xuplims = True, yerr=y_err[x_limited_up], xerr = (np.ones(len(x_limited_up))*0.3)[x_limited_up], fmt=marker, color=color, ecolor=color, elinewidth=1, capsize=1)
 
     both_limited_low = np.array([True if (x_limit[i]=='lower' and y_limit[i]=='lower') else False for i in range(len(x_limit))])
-    ax.errorbar(x_data[both_limited_low], y_data[both_limited_low], xlolims = True, lolims = True, xerr = (np.ones(len(both_limited_low))*0.3)[both_limited_low], yerr = (np.ones(len(both_limited_low))*0.3)[both_limited_low], fmt = 'o', color=color, ecolor=color, elinewidth=1, capsize=1)
+    ax.errorbar(x_data[both_limited_low], y_data[both_limited_low], xlolims = True, lolims = True, xerr = (np.ones(len(both_limited_low))*0.3)[both_limited_low], yerr = (np.ones(len(both_limited_low))*0.3)[both_limited_low], fmt = marker, color=color, ecolor=color, elinewidth=1, capsize=1)
 
     x_low_y_up = np.array([True if (x_limit[i]=='lower' and y_limit[i]=='upper') else False for i in range(len(x_limit))])
-    ax.errorbar(x_data[x_low_y_up], y_data[x_low_y_up], xlolims = True, uplims = True, xerr = (np.ones(len(x_low_y_up))*0.3)[x_low_y_up], yerr = (np.ones(len(x_low_y_up))*0.3)[x_low_y_up], fmt = 'o', color=color, ecolor=color, elinewidth=1, capsize=1)
+    ax.errorbar(x_data[x_low_y_up], y_data[x_low_y_up], xlolims = True, uplims = True, xerr = (np.ones(len(x_low_y_up))*0.3)[x_low_y_up], yerr = (np.ones(len(x_low_y_up))*0.3)[x_low_y_up], fmt = marker, color=color, ecolor=color, elinewidth=1, capsize=1)
 
     x_up_y_up = np.array([True if (x_limit[i]=='upper' and y_limit[i]=='upper') else False for i in range(len(x_limit))])
-    ax.errorbar(x_data[x_up_y_up], y_data[x_up_y_up], xuplims = True, uplims = True, xerr = (np.ones(len(x_up_y_up))*0.3)[x_up_y_up], yerr = (np.ones(len(x_up_y_up))*0.3)[x_up_y_up], fmt = 'o', color=color, ecolor=color, elinewidth=1, capsize=1)
+    ax.errorbar(x_data[x_up_y_up], y_data[x_up_y_up], xuplims = True, uplims = True, xerr = (np.ones(len(x_up_y_up))*0.3)[x_up_y_up], yerr = (np.ones(len(x_up_y_up))*0.3)[x_up_y_up], fmt = marker, color=color, ecolor=color, elinewidth=1, capsize=1)
 
     if special==True:
         CO_Sodini_special = np.nan_to_num(CO_Sodini, copy=True, nan=-np.inf)
         maybepop3 = np.argsort(CO_Sodini_special)[-3:]
+        ax.scatter(x_data[maybepop3], y_data[maybepop3], s=50, facecolors='none', edgecolors='black', marker='s', zorder=1e5)
+
+    if special_only==True:
+        #delete all the points plotted before and plot only the special points
+        ax.cla()
+        CO_Sodini_special = np.nan_to_num(CO_Sodini, copy=True, nan=-np.inf)
+        maybepop3 = np.argsort(CO_Sodini_special)[-3:]
+        plot_Sodini(x_data[maybepop3], y_data[maybepop3], x_err[maybepop3], y_err[maybepop3], x_limit[maybepop3], y_limit[maybepop3], ax, color, special=False, label = label, special_only=False)
         ax.scatter(x_data[maybepop3], y_data[maybepop3], s=50, facecolors='none', edgecolors='black', marker='s', zorder=1e5)
 
 ##########
@@ -336,9 +351,29 @@ FeH_err_Sodini = np.array([np.nan, np.nan, np.nan, 0.11, 0.11, np.nan, np.nan, 0
                            0.10, np.nan, np.nan, 0.10, np.nan, np.nan, np.nan, np.nan])
 
 FeH_err_limit_type = np.array(['nan' if not np.isnan(FeH_err_Sodini[i]) else 'upper' for i in range(len(FeH_err_Sodini))])
+#################
 
 
-########POP II models###########
+########## HIGGINSON ET AL 2026
+
+# [C/O]
+C_O_Higg = np.array([-1.06, -0.25, -0.12, -0.47, -0.29,  0.42, 0.02, 0.19, 0.10, -0.38])
+C_O_Higg_err = np.array([0.08, 0.00, 0.10, 0.00, 0.17, 0.11, 0.02, 0.03, 0.03, 0.11])
+C_O_Higg_err_limit_type = np.array(['nan', 'nan', 'nan', 'nan', 'nan', 'lower', 'lower', 'nan', 'nan', 'nan'])
+# [Si/O]
+Si_O_Higg = np.array([0.19, 0.15, 0.21, -0.58, -0.07, 0.67, 0.21, 0.55, -0.01, 0.65 ])
+Si_O_Higg_err = np.array([0.09, 0.00, 0.10, 0.00, 0.10, 0.12, 0.02, 0.13, 0.00, 0.12])
+Si_O_Higg_err_limit_type = np.array(['nan', 'nan', 'nan', 'nan', 'nan', 'lower', 'lower', 'nan', 'upper', 'nan'])
+
+
+########## CHRISTENSEN ET AL 2023
+Si_O_Chris = np.array([0.98, 0.43, 0.15, 0.64, 0.49, 0.73])
+Si_O_Chris_err = np.array([0.1, 0.24, 0.16, 0.11, 0.11, 0.06])
+Si_O_Chris_err_limit_type = np.array(['nan', 'nan', 'nan', 'nan', 'nan', 'nan'])
+
+C_O_Chris = np.array([-0.17, 0.19, -0.13, -0.26, -0.02, -0.07])
+C_O_Chris_err = np.array([np.nan, 0.15, 0.08, np.nan, 0.07, np.nan])
+C_O_Chris_err_limit_type = np.array(['upper', 'nan', 'nan', 'upper', 'nan', 'upper'])
 
 
 
@@ -362,6 +397,103 @@ def plot_models(x_data, y_data, ax, color, label=None):
     poly = Polygon(points, closed=True, facecolor=color, edgecolor=color, alpha=0.4, label=label)
     ax.add_patch(poly)
 
+###PLOT THE 4 SUBPLOTS LIKE SODINI
+
+def plot_Sodini_all(special_only=False, WW_model=True):
+    figs, axs = plt.subplots(2, 2, figsize=(10, 10))
+    axs = axs.flatten()
+
+    for aa in [axs]:
+        plot_Sodini(CFe_Sodini, OFe_Sodini, CFe_err_Sodini, OFe_err_Sodini, CFe_limit_type, OFe_limit_type, aa[0], color='red', special=True, label='Sodini+24', special_only=special_only)
+        if not special_only:
+            plot_Sodini(CFe_Becker, OFe_Becker, CFe_Becker_err, OFe_Becker_err, CFe_Becker_limit_type, OFe_Becker_limit_type, aa[0], color='blue', label='Becker+20')
+            plot_Sodini(CFe_Poudel_2018, OFe_Poudel_2018, CFe_Poudel_2018_err, OFe_Poudel_2018_err, CFe_Poudel_2018_limit_type, OFe_Poudel_2018_limit_type, aa[0], color='green', label='Poudel+18,+20')
+            plot_Sodini(CFe_Poudel[:2], OFe_Poudel[:2], CFe_Poudel_err[:2], OFe_Poudel_err[:2], CFe_Poudel_limit_type[:2], OFe_Poudel_limit_type[:2], aa[0], color='green')
+        aa[0].set_xlabel(r'[C/Fe]')
+        aa[0].set_ylabel(r'[O/Fe]')
+
+        plot_Sodini(CFe_Sodini, SiC_Sodini, CFe_err_Sodini, SiC_err_Sodini, CFe_limit_type, SiC_limit_type, aa[1], color = 'red', special=True, special_only=special_only)
+        if not special_only:
+            plot_Sodini(CFe_Becker, SiC_Becker, CFe_Becker_err, SiC_Becker_err, CFe_Becker_limit_type, SiC_Becker_limit_type, aa[1], color='blue')
+            plot_Sodini(CFe_Poudel_2018, SiC_Poudel_2018, CFe_Poudel_2018_err, SiC_Poudel_2018_err, CFe_Poudel_2018_limit_type, SiC_Poudel_2018_limit_type, aa[1], color='green')
+            plot_Sodini(CFe_Poudel[:2], SiC_Poudel[:2], CFe_Poudel_err[:2], SiC_Poudel_err[:2], CFe_Poudel_limit_type[:2], SiC_Poudel_limit_type[:2], aa[1], color='green')
+        aa[1].set_xlabel(r'[C/Fe]')
+        aa[1].set_ylabel(r'[Si/C]')
+
+        plot_Sodini(OFe_Sodini, SiFe_Sodini, OFe_err_Sodini, SiFe_err_Sodini, OFe_limit_type, SiFe_limit_type, aa[2], color='red', special=True, special_only=special_only)
+        if not special_only:
+            plot_Sodini(OFe_Becker, SiFe_Becker, OFe_Becker_err, SiFe_Becker_err, OFe_Becker_limit_type, SiFe_Becker_limit_type, aa[2], color='blue')
+            plot_Sodini(OFe_Poudel_2018, SiFe_Poudel_2018, OFe_Poudel_2018_err, SiFe_Poudel_2018_err, OFe_Poudel_2018_limit_type, SiFe_Poudel_2018_limit_type, aa[2], color='green')
+            plot_Sodini(OFe_Poudel[:2], SiFe_Poudel[:2], OFe_Poudel_err[:2], SiFe_Poudel_err[:2], OFe_Poudel_limit_type[:2], SiFe_Poudel_limit_type[:2], aa[2], color='green')
+        aa[2].set_xlabel(r'[O/Fe]')
+        aa[2].set_ylabel(r'[Si/Fe]')
+
+        plot_Sodini(CO_Sodini, SiO_Sodini, CO_err_Sodini, SiO_err_Sodini, CO_limit_type, SiO_limit_type, aa[3], color='red', special=True, special_only=special_only)
+        if not special_only:
+            plot_Sodini(CO_Becker, SiO_Becker, CO_Becker_err, SiO_Becker_err, CO_Becker_limit_type, SiO_Becker_limit_type, aa[3], color='blue')
+            plot_Sodini(CO_Poudel_2018, SiO_Poudel_2018, CO_Poudel_2018_err, SiO_Poudel_2018_err, CO_Poudel_2018_limit_type, SiO_Poudel_2018_limit_type, aa[3], color='green')
+            plot_Sodini(CO_Poudel[:2], SiO_Poudel[:2], CO_Poudel_err[:2], SiO_Poudel_err[:2], CO_Poudel_limit_type[:2], SiO_Poudel_limit_type[:2], aa[3], color='green')
+            plot_Sodini(C_O_Higg, Si_O_Higg, C_O_Higg_err, Si_O_Higg_err, C_O_Higg_err_limit_type, Si_O_Higg_err_limit_type, aa[3], color='darkgray', label='Higginson+26', marker = 'P')
+            plot_Sodini(C_O_Chris, Si_O_Chris, C_O_Chris_err, Si_O_Chris_err, C_O_Chris_err_limit_type, Si_O_Chris_err_limit_type, aa[3], color = 'violet', label='Christensen+23', marker = 'd')
+        aa[3].set_xlabel(r'[C/O]')
+        aa[3].set_ylabel(r'[Si/O]')
+
+    if WW_model:
+        plot_models(CFe0_WW, OFe0_WW, axs[0], color='lightblue')
+        plot_models(CFe1_WW, SiC1_WW, axs[1], color='lightblue', label= 'PopII - WW95')
+        plot_models(OFe2_WW, SiFe2_WW, axs[2], color='lightblue')
+        plot_models(CO3_WW, SiO3_WW, axs[3], color='lightblue')
+        axs[1].legend(loc='lower left', frameon=False)
+
+
+    for aa in [axs]:
+        aa[0].set_xlim(-1.3, 1.8)
+        aa[0].set_ylim(-1.5, 2)
+        aa[1].set_xlim(-1.3, 2)
+        aa[1].set_ylim(-1., 1)
+        aa[2].set_xlim(-1, 2.3)
+        aa[2].set_ylim(-0.7, 1.5)
+        aa[3].set_xlim(-1.4, 1)
+        aa[3].set_ylim(-1.25, 1.35)
+
+    axs[0].legend(frameon=False)
+    axs[3].legend(frameon=False, loc='lower right')
+    figs.subplots_adjust(bottom=0.2)
+    figs.subplots_adjust(wspace=0.3, hspace=0.3)
+
+    return figs, axs
+
+
+
+######### REDSHIFT EVOLUTION OF ABUNDANCES #########
+
+#Sodini Gray lines [2<z<4.5, 4.5<z<6.5]
+c_si_sod_mean = [-0.21, -0.19]
+c_si_sod_sigma = [0.08, 0.12]
+c_si_sod_mean_err = [0.02, 0.02]
+
+c_o_sod_mean = [-0.38, -0.11]
+c_o_sod_sigma = [0.12, 0.24]
+c_o_sod_mean_err = [0.04, 0.04]
+
+c_fe_sod_mean = [0.14, 0.22]
+c_fe_sod_sigma = [0.08, 0.14]
+c_fe_sod_mean_err = [0.03, 0.02]
+
+o_fe_sod_mean = [0.42, 0.32]
+o_fe_sod_sigma = [0.05, 0.21]
+o_fe_sod_mean_err = [0.01, 0.04]
+
+si_fe_sod_mean = [0.32, 0.46]
+si_fe_sod_sigma = [0.04, 0.13]
+si_fe_sod_mean_err = [0.01, 0.02]
+
+si_o_sod_mean = [-0.11, 0.11]
+si_o_sod_sigma = [0.08, 0.25]
+si_o_sod_mean_err = [0.02, 0.04]
+
+
+########POP II models###########
 
 ####### tracks #######
 
@@ -477,24 +609,150 @@ Portinari_yields[4,7,:] = [26.74, 8.60E-04, 60.90, 3.79, 1.94E-02, 1.79, 2.78E-0
 Portinari_yields[4,8,:] = [38.07, 1.15E-03, 68.39, 3.82, 2.61E-02, 2.11, 3.20E-04, 2.60, 6.31E-02, 0.177,
                            0.669, 1.27, 0.180, 0.314, 0.166, 2.42E-02, 0.416]
 
+####Portinari low mass 
 
+Portinari_lowmasses = [6, 7]
+Portinari_lowmass_elements = ["1H", "3He", "4He", "12C", "13C", "14N", "15N", "16O", "17O", "18O", "20Ne", "22Ne"]
+Portinari_lowm_yields = np.zeros((5, 2, len(Portinari_lowmass_elements))) #shape is (metallicity, mass, element)
+
+#Z = 0.0004
+Portinari_lowm_yields[0,0,:] = [3.22, 1.70E-04, 1.48, 2.42E-04, 1.48E-05, 5.23E-04, 1.82E-07, 8.12E-04, 3.94E-06, 1.35E-06, 1.93E-05, 5.13E-06]
+Portinari_lowm_yields[0,1,:] = [3.68, 1.45E-04, 2.00, 2.67E-04, 1.71E-05, 7.25E-04, 2.02E-07, 9.10E-04, 4.37E-06, 1.49E-06, 2.34E-05, 5.99E-06]
+
+#Z = 0.004
+Portinari_lowm_yields[1,0,:] = [3.16, 1.80E-04, 1.52, 2.80E-03, 1.65E-04, 4.72E-03, 2.04E-06, 8.17E-03, 3.99E-05, 1.56E-05, 1.93E-04, 4.73E-08 ]
+Portinari_lowm_yields[1,1,:] = [3.61, 1.64E-04, 2.07, 3.22E-03, 1.99E-04, 6.42E-03, 2.34E-06, 9.35E-03, 3.93E-05, 1.80E-05, 2.34E-04, 5.45E-08 ]
+
+#Z = 0.008
+Portinari_lowm_yields[2,0,:] = [3.15, 1.97E-04, 1.51, 5.97E-03, 3.30E-04, 8.53E-03, 4.43E-06, 1.69E-02, 1.09E-04, 3.33E-05, 3.86E-04, 1.03E-04 ]
+Portinari_lowm_yields[2,1,:] = [3.59, 1.80E-04, 2.06, 6.73E-03, 3.98E-04, 1.21E-02, 4.93E-06, 1.91E-02, 1.25E-04, 3.79E-05, 4.68E-04, 1.20E-04 ]
+
+#Z = 0.02
+Portinari_lowm_yields[3,0,:] = [3.02, 2.46E-04, 1.58, 1.60E-02, 8.49E-04, 1.84E-02, 1.18E-05, 4.38E-02, 5.24E-04, 8.83E-05, 9.64E-04, 2.57E-04]
+Portinari_lowm_yields[3,1,:] = [3.44, 2.34E-04, 2.15, 1.79E-02, 1.00E-03, 2.72E-02, 1.32E-05, 4.97E-02, 5.71E-04, 9.89E-05, 1.17E-03, 2.99E-04]
+
+#Z = 0.05
+Portinari_lowm_yields[4,0,:] = [2.49, 3.37E-04, 1.97, 4.03E-02, 2.08E-03, 4.39E-02, 3.02E-05, 0.111, 1.66E-03, 2.21E-04, 2.41E-03, 6.42E-04 ]
+Portinari_lowm_yields[4,1,:] = [2.88, 3.59E-04, 2.53, 4.61E-02, 2.51E-03, 6.13E-02, 3.38E-05, 0.129, 1.99E-03, 2.53E-04, 2.92E-03, 7.49E-04 ]
 
 
 #####SN Ia - Thielemann 2003, as compiled by Travaglio 2004
 # 
-
-Thie_2003_elements = ["12C", "13C", "14N", "15N", "16O", "17O", "18O", "19F","20Ne", "21Ne", "22Ne", "23Na", "24Mg", "25Mg", "26Mg", 
+#from paper
+'''Thie_2003_elements = ["12C", "13C", "14N", "15N", "16O", "17O", "18O", "19F","20Ne", "21Ne", "22Ne", "23Na", "24Mg", "25Mg", "26Mg", 
                       "27Al", "28Si", "29Si", "30Si", "31P", "32S", "33S", "34S", "36S", "35Cl", "37Cl", "36Ar", "38Ar", "40Ar", 
                       "39K", "41K", "40Ca", "42Ca", "43Ca", "44Ca", "46Ca", "48Ca", "45Sc", "46Ti", "47Ti", "48Ti", "49Ti", 
                       "50Ti", "50V", "51V", "50Cr", "52Cr", "53Cr", "54Cr", "55Mn", "54Fe", "56Fe", "57Fe", "58Fe", "59Co", "58Ni",
                      "60Ni", "61Ni", "62Ni", "64Ni", "63Cu", "65Cu", "64Zn", "66Zn", "67Zn", "68Zn"]
+'''
+#from hdf5
 
-Thie_2003_yields = [5.04E-02, 1.07E-06, 4.94E-07, 1.25E-09, 1.40E-01, 3.05E-08, 7.25E-10, 5.72E-10, 1.97E-03, 8.51E-06, 2.27E-03, 6.20E-05, 1.31E-02, 4.71E-05, 3.31E-05,
+Thie_2003_yields = [0, 0, 0, 0, 0, 0.0483014, 1.16132e-06, 0.143, 5.67e-10, 0.00451846, 6.32e-05, 0.0085723, 0.000986, 
+                    0.152601, 0.000418, 0.0864503, 0.0001738, 0.01596, 9.264e-05, 0.0123442, 2.47e-07, 0.000250204, 
+                    5.15083e-05, 0.006396, 0.00823, 0.743463, 0.00102, 0.141412, 2.473e-06, 3.34236e-05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+Thie_2003_elements = ["Hydrogen", "Helium", "Lithium", "Beryllium", "Boron", "Carbon",
+                      "Nitrogen", "Oxygen", "Fluorine", "Neon", "Sodium", "Magnesium",
+                      "Aluminum", "Silicon", "Phosphorus", "Sulphur", "Chlorine",
+                      "Argon", "Potassium", "Calcium", "Scandium", "Titanium",
+                      "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel",
+                      "Copper", "Zinc", "Gallium", "Germanium", "Arsenic", "Selenium",
+                      "Bromine", "Krypton", "Rubidium", "Strontium", "Yttrium",
+                      "Zirconium", "Niobium", "Molybdenum"]
+
+#from paper
+'''Thie_2003_yields = [5.04E-02, 1.07E-06, 4.94E-07, 1.25E-09, 1.40E-01, 3.05E-08, 7.25E-10, 5.72E-10, 1.97E-03, 8.51E-06, 2.27E-03, 6.20E-05, 1.31E-02, 4.71E-05, 3.31E-05,
     8.17E-04, 1.52E-01, 7.97E-04, 1.43E-03, 3.15E-04, 8.45E-02, 4.11E-04, 1.72E-03, 2.86E-07, 1.26E-04, 3.61E-05, 1.49E-02, 8.37E-04, 1.38E-08,
     6.81E-05, 6.03E-06, 1.21E-02, 2.48E-05, 1.07E-07, 9.62E-06, 2.44E-09, 1.21E-12, 2.17E-07, 1.16E-05, 5.45E-07, 2.07E-04, 1.59E-06, 
     1.62E-06, 4.58E-09, 3.95E-05, 2.23E-04, 4.52E-03, 6.49E-04, 3.04E-05, 6.54E-03, 7.49E-02, 6.69E-01, 2.52E-02, 1.74E-04,
     7.66E-04, 1.02E-01, 9.22E-03, 2.69E-04, 2.31E-03, 1.84E-07, 1.59E-06, 7.72E-07, 1.50E-05, 1.31E-08, 1.18E-11, 2.66E-10]
+'''
+
+####AGB from Karakas 2010
+Karakas_met = [1.0E-4, 0.004, 0.008, 0.02]
+import pandas as pd
+
+column_names = [
+    "Mass",
+    "Z",
+    "_",
+    "species",
+    "index_species",
+    "yield", 
+    "M_lost", 
+    "_", "_", "_", "_"
+]
+
+def read_dat_file(path):
+    df = pd.read_csv(
+        path,
+        sep=r"\s+",
+        header=None,
+        comment="#",
+        engine="python",
+    )
+    return df
+
+Karakas_files = ["/home/gpruto/metal_ab/data_Karakas/tablea5.dat", "/home/gpruto/metal_ab/data_Karakas/tablea4.dat",
+                 "/home/gpruto/metal_ab/data_Karakas/tablea3.dat", "/home/gpruto/metal_ab/data_Karakas/tablea2.dat"]
+df = read_dat_file(Karakas_files[0])
+df.columns = column_names
+Karakas_masses = df["Mass"].unique().astype(float).tolist() #list of masses in the Karakas tables, should be the same for all metallicities
+
+Karakas_oxygen_yields = np.zeros((len(Karakas_met), len(Karakas_masses))) #shape is (metallicity, mass)
+Karakas_carbon_yields = np.zeros((len(Karakas_met), len(Karakas_masses))) #shape is (metallicity, mass)
+Karakas_iron_yields = np.zeros((len(Karakas_met), len(Karakas_masses))) #shape is (metallicity, mass)
+Karakas_silicon_yields = np.zeros((len(Karakas_met), len(Karakas_masses))) #shape is (metallicity, mass)
+
+for z in range(len(Karakas_met)):
+    df = read_dat_file(Karakas_files[z])
+    df.columns = column_names
+    for m in range(len(Karakas_masses)):
+        if z==1 and m==5:
+            Karakas_masses[m] = 2.10
+        if z==3 and m==5:
+            Karakas_masses[m] = 2.00
+        #if m == 15 and z==0:
+            #print(df.loc[(df["Mass"] == Karakas_masses[m-1]) & (df["index_species"] == 12), "yield"].values)
+            #Karakas_carbon_yields[z, m] = df.loc[(df["Mass"] == Karakas_masses[m-1]) & (df["index_species"] == 12), "yield"].values[1]
+            #Karakas_carbon_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m-1]) & (df["index_species"] == 13), "yield"].values[1]
+            #Karakas_carbon_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m-1]) & (df["index_species"] == 14), "yield"].values[1]
+        #else:
+        Karakas_carbon_yields[z, m] = df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "c12"), "M_lost"].values[0]
+        Karakas_carbon_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "c13"), "M_lost"].values[0]
+        Karakas_carbon_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "c14"), "M_lost"].values[0]
+
+        Karakas_oxygen_yields[z, m] = df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "o16"), "M_lost"].values[0]
+        Karakas_oxygen_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "o17"), "M_lost"].values[0]
+        Karakas_oxygen_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "o18"), "M_lost"].values[0]
+        Karakas_oxygen_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "o19"), "M_lost"].values[0]
+
+        Karakas_silicon_yields[z, m] = df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "si27"), "M_lost"].values[0]
+        Karakas_silicon_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "si28"), "M_lost"].values[0]
+        Karakas_silicon_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "si29"), "M_lost"].values[0]
+        Karakas_silicon_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "si30"), "M_lost"].values[0]
+        Karakas_silicon_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "si31"), "M_lost"].values[0]
+        Karakas_silicon_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "si32"), "M_lost"].values[0]
+        Karakas_silicon_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "si33"), "M_lost"].values[0]
+
+
+        Karakas_iron_yields[z, m] = df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "fe54"), "M_lost"].values[0]
+        Karakas_iron_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "fe55"), "M_lost"].values[0]
+        Karakas_iron_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "fe56"), "M_lost"].values[0]
+        Karakas_iron_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "fe57"), "M_lost"].values[0]
+        Karakas_iron_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "fe58"), "M_lost"].values[0]
+        Karakas_iron_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "fe59"), "M_lost"].values[0]
+        Karakas_iron_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "fe60"), "M_lost"].values[0]
+        Karakas_iron_yields[z, m] += df.loc[(df["Mass"] == Karakas_masses[m]) & (df["species"] == "fe61"), "M_lost"].values[0]
+    
+
+
+
+
 
 
 if __name__ == "__main__":
-    print(Thie_2003_elements[30], Thie_2003_yields[30])
+    print(Si_O_Higg)
+    print(C_O_Higg)
+    fig, ax = plot_Sodini_all()
+    fig.savefig("/home/gpruto/metal_ab/images/Sodini_all_test.png", dpi=300)

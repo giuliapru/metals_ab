@@ -6,9 +6,9 @@ import numpy as np
 
 snaps = np.array([39, 51, 68, 92]) #39 51, 68, 92
 redshifts = np.array([8, 7, 6, 5]) #8,7,6,5
-cold_gas_only = True
+cold_gas_only = False
 metal_cut = True
-gal = ['g578', 'g205', 'g39'] #['g5229300', 'g2274036', 'g519761', 'g500531', 'g137030', 'g37591','g33206', 'g10304', 'g5760', 'g1163', 'g578', 'g205', 'g39']
+gal = ['g5229300', 'g2274036', 'g519761', 'g500531', 'g137030', 'g37591','g33206', 'g10304', 'g5760', 'g1163'] #['g5229300', 'g2274036', 'g519761', 'g500531', 'g137030', 'g37591','g33206', 'g10304', 'g5760', 'g1163', 'g578', 'g205', 'g39']
 
 
 def create_slurm_script(job_name, output_file, error_file, times, nodes, ntasks_per_node, job_script_name, job_commands):
@@ -19,7 +19,7 @@ def create_slurm_script(job_name, output_file, error_file, times, nodes, ntasks_
 #SBATCH -p all
 #SBATCH --time={times}                # Time limit
 #SBATCH --nodes={nodes}              # Number of nodes
-#SBATCH --mem-per-cpu=100GB
+#SBATCH --mem-per-cpu=10GB
 #SBATCH --ntasks-per-node={ntasks_per_node}  # Number of tasks per node
 
 # Load any necessary modules (if needed)
